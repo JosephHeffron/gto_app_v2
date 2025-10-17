@@ -1,0 +1,6 @@
+{
+  "installCommand": "cd gto-trainer && npm ci",
+  "buildCommand": "cd gto-trainer && npm run build",
+  "outputDirectory": "gto-trainer/build",
+  "framework": null
+}
