@@ -556,6 +556,9 @@ export default function GTOPokerTrainer() {
             const newC = generateOneBoardCard(existing);
             setRiverCard(newC);
         }
+        // Reset guess mechanics for the new street in training mode
+        setUserGuess(null);
+        setShowStrategy(mode === 'practice' ? true : false);
     };
 
     // Choose which strategy to use
@@ -588,12 +591,38 @@ export default function GTOPokerTrainer() {
         return actions.reduce((a, b) => (obj[a] > obj[b] ? a : b));
     };
 
+    // Normalize and equivalence checks for actions across streets
+    const normalizeAction = (action: string) => action.trim().toLowerCase();
+    const mapActionByStreet = (action: string, isPreflop: boolean) => {
+        const a = normalizeAction(action);
+        if (isPreflop) {
+            // Preflop aggression is "raise"; if someone enters "bet", treat as raise synonymically
+            if (a === 'bet') return 'raise';
+            return a;
+        } else {
+            // Postflop initial aggression is "bet"; if someone enters "raise", treat as bet synonymically
+            if (a === 'raise' || a === 'cbet') return 'bet';
+            return a;
+        }
+    };
+    const areActionsEquivalent = (
+        guess: string,
+        expected: string,
+        isPreflop: boolean
+    ) => {
+        const g = mapActionByStreet(guess, isPreflop);
+        const e = mapActionByStreet(expected, isPreflop);
+        return g === e;
+    };
+
     const handleGuess = (action: string) => {
         setUserGuess(action);
         setShowStrategy(true);
         const correct = getPrimaryAction(strategy);
+        const isPre = gameStage === 'preflop';
+        const isCorrect = areActionsEquivalent(action, correct, isPre);
         setScore((prev) => ({
-            correct: prev.correct + (action === correct ? 1 : 0),
+            correct: prev.correct + (isCorrect ? 1 : 0),
             total: prev.total + 1
         }));
     };
@@ -808,7 +837,7 @@ export default function GTOPokerTrainer() {
                                 <h3 className="text-xl font-bold text-gray-800 mb-4">What action would you take?</h3>
                                 <div className="grid grid-cols-3 gap-4">
                                     {gameStage === 'preflop'
-                                        ? (['fold', 'raise'] as const).map((a) => (
+                                        ? (['fold', 'call', 'raise'] as const).map((a) => (
                                             <button
                                                 key={a}
                                                 onClick={() => handleGuess(a)}
@@ -843,13 +872,13 @@ export default function GTOPokerTrainer() {
                                 {mode === 'training' && userGuess && (
                                     <div
                                         className={`mb-6 p-4 rounded-lg ${
-                                            userGuess === getPrimaryAction(strategy)
+                                            areActionsEquivalent(userGuess, getPrimaryAction(strategy), gameStage === 'preflop')
                                                 ? 'bg-green-100 border-2 border-green-500'
                                                 : 'bg-red-100 border-2 border-red-500'
                                         }`}
                                     >
                                         <div className="font-semibold">
-                                            {userGuess === getPrimaryAction(strategy) ? '✓ Correct!' : '✗ Incorrect'}
+                                            {areActionsEquivalent(userGuess, getPrimaryAction(strategy), gameStage === 'preflop') ? '✓ Correct!' : '✗ Incorrect'}
                                         </div>
                                         <div className="text-sm mt-1">
                                             You selected: <span className="font-semibold">{userGuess}</span>
