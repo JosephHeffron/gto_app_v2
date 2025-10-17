@@ -743,7 +743,7 @@ export default function GTOPokerTrainer() {
                     {/* Main Panel */}
                     <div className="lg:col-span-2 space-y-6">
                         <div className="bg-white rounded-xl shadow-2xl p-8">
-                            <div className="flex items-center justify-between mb-6">
+                            <div className="flex items-center justify-between gap-4 mb-6 pb-2 border-b border-gray-200">
                                 <h2 className="text-2xl font-bold text-gray-800">
                                     {gameStage === 'preflop' ? 'Preflop Stage' : 'Board Stage'}
                                 </h2>
@@ -808,7 +808,7 @@ export default function GTOPokerTrainer() {
                                 <h3 className="text-xl font-bold text-gray-800 mb-4">What action would you take?</h3>
                                 <div className="grid grid-cols-3 gap-4">
                                     {gameStage === 'preflop'
-                                        ? (['fold', 'call', 'raise'] as const).map((a) => (
+                                        ? (['fold', 'raise'] as const).map((a) => (
                                             <button
                                                 key={a}
                                                 onClick={() => handleGuess(a)}
@@ -817,7 +817,7 @@ export default function GTOPokerTrainer() {
                                                 {a}
                                             </button>
                                         ))
-                                        : (['bet', 'check', 'fold'] as const).map((a) => (
+                                        : (['bet', 'check', 'call', 'fold'] as const).map((a) => (
                                             <button
                                                 key={a}
                                                 onClick={() => handleGuess(a)}
