@@ -1,1 +1,1 @@
-This is a simple GTO blackjack trainer to get familiar with general ranges and decisions.
+This is a simple GTO trainer for Texas Hold'em to get familiar with general ranges and decisions.
